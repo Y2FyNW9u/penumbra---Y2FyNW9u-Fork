@@ -23,6 +23,7 @@ namespace Penumbra
         private ContentManager _content;
 
         private bool _initialized;
+
         private bool _beginDrawCalled;
 
         /// <summary>
@@ -117,6 +118,7 @@ namespace Penumbra
                 _content.Load<Effect>("PenumbraShadow"),
                 _content.Load<Effect>("PenumbraTexture"));
             _initialized = true;
+            Visible = false;
         }
 
         /// <summary>
@@ -124,16 +126,21 @@ namespace Penumbra
         /// </summary>
         public void BeginDraw()
         {
-            if (Visible)
-            {
+
                 if (!_initialized)
                     throw new InvalidOperationException(
                         $"{nameof(PenumbraComponent)} is not initialized. Make sure to call {nameof(Initialize)} when setting up a game.");
 
                 _engine.PreRender();
-                _beginDrawCalled = true;
-            }
+                _beginDrawCalled = true;          
+
         }
+
+        /// <summary>
+        /// Generates the lightmap, blends it with whatever was drawn to the scene between the
+        /// calls to BeginDraw and this and presents the result to the backbuffer.
+        /// </summary>
+        /// <param name="gameTime">Time passed since the last call to Draw.</param>
 
         /// <summary>
         /// Generates the lightmap, blends it with whatever was drawn to the scene between the
@@ -142,15 +149,15 @@ namespace Penumbra
         /// <param name="gameTime">Time passed since the last call to Draw.</param>
         public override void Draw(GameTime gameTime)
         {
-            if (Visible)
-            {
+          
                 if (!_beginDrawCalled)
                     throw new InvalidOperationException(
                         $"{nameof(BeginDraw)} must be called before rendering a scene to be lit and calling {nameof(Draw)}.");
+                
 
                 _engine.Render();
                 _beginDrawCalled = false;
-            }
+
         }
 
         /// <inheritdoc />
